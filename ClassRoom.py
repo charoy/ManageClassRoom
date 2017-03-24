@@ -9,24 +9,34 @@ class ClassRoom(object):
         self.repo_name=repo_name
         self.g = Github(oauth)
 
-    def get_github_classroom_repos(self):
+    def getRepos(self):
         result = list()
         for org in self.g.get_user().get_orgs():
             for repo in org.get_repos():
-                print repo.name
                 if self.repo_name in repo.name:
-                    result.append(repo.html_url)
+                    result.append(repo)
         return result
 
+    def getCommits(self,repo):
+        commits = repo.get_commits()
+        return commits
 
-
+    def workDistribution(self,commits):
+        authors=set()
+        for c in commits:
+            if type(c.author) != NoneType and c.author.login != u'Eisenbarth':
+                    authors.add(c.author.login)
+        return authors
 
 stream = open("props.yml", 'r')
 try:
     props=load(stream)
     c=ClassRoom(props['github']['oauth'],'designpattern')
-    r=c.get_github_classroom_repos()
-    print r
+    repos=c.getRepos()
+    for r in repos:
+        w=c.getCommits(r)
+        print(c.workDistribution(w))
+
 except YAMLError as exc:
     print(exc)
 
