@@ -21,17 +21,23 @@ class ClassRoom(object):
         commits = repo.get_commits()
         return commits
 
+    def setTeachers(self,teachers):
+        self.teachers=teachers
+
     def workDistribution(self,commits):
         authors=set()
+        count=0
         for c in commits:
-            if type(c.author) != NoneType and c.author.login != u'Eisenbarth':
+            if type(c.author) != NoneType and c.author.login not in self.teachers:
                     authors.add(c.author.login)
-        return authors
+                    count=count+1
+        return list([authors,count])
 
 stream = open("props.yml", 'r')
 try:
     props=load(stream)
     c=ClassRoom(props['github']['oauth'],'designpattern')
+    c.setTeachers([u'oster', u'charoy'])
     repos=c.getRepos()
     for r in repos:
         w=c.getCommits(r)
